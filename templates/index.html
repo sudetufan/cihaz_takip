@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Cihaz Listesi{% endblock %}
+
+{% block content %}
+    <h2>Cihaz Listesi</h2>
+    <a href="/cihaz_ekle" class="btn btn-success mb-3">Yeni Cihaz Ekle</a>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Cihaz Tipi</th>
+                <th>Marka</th>
+                <th>Model</th>
+                <th>Seri No</th>
+                <th>Durum</th>
+                <th>Oda</th>
+                <th>Personel</th>
+                <th>Tarih</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cihaz in cihazlar %}
+            <tr>
+                <td>{{ cihaz.id }}</td>
+                <td>{{ cihaz.cihaz_tipi }}</td>
+                <td>{{ cihaz.marka }}</td>
+                <td>{{ cihaz.model }}</td>
+                <td>{{ cihaz.seri_no }}</td>
+                <td>{{ cihaz.durum }}</td>
+                <td>{{ cihaz.oda }}</td>
+                <td>{{ cihaz.personel_adi }}</td>
+                <td>{{ cihaz.tarih }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

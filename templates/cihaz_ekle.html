@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Cihaz Ekle{% endblock %}
+
+{% block content %}
+    <h2>Cihaz Ekle</h2>
+    <form method = "POST">
+
+        <div class = "mb-3">
+            <label class="form-label">Cihaz Tipi</label>
+            <select class="form-select" name="cihaz_tipi" required>
+                {% for tip in cihaz_tipleri %}
+                    <option value="{{ tip.id }}">{{ tip.ad }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Marka</label>
+            <input class="form-control" name="marka" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Model</label>
+            <input class="form-control" name="model" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Seri No</label>
+            <input class="form-control" name="seri_no" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Durum</label>
+            <select class="form-select" name="durum" required>
+                {% for d in durumlar %}
+                <option value="{{ d.id }}">{{ d.ad }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Oda</label>
+            <select class="form-select" name="oda" required>
+                {% for o in odalar %}
+                <option value="{{ o.id }}">{{ o.ad }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Personel</label>
+            <select class="form-select" name="personel" required>
+            {% for p in personeller %}
+            <option value="{{ p.id }}">{{ p.ad }}</option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+      <label class="form-label">Tarih</label>
+      <input class="form-control" type="date" name="tarih" required>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Kaydet</button>
+
+    </form>
+{% endblock %}
