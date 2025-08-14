@@ -36,7 +36,6 @@ def cihaz_ekle():
         personel = request.form["personel"]
         tarih = request.form["tarih"]
 
-        # POST kısmında bağlantıyı aç
         conn = get_db_connection()
         conn.execute('''
             INSERT INTO cihazlar (cihaz_tipi_id, marka, model, seri_no, durum_id, oda_id, personel_id, tarih)
@@ -47,7 +46,6 @@ def cihaz_ekle():
         conn.close()
         return redirect(url_for('index'))
 
-    # GET kısmı için ayrı bağlantı aç (POST'un dışında!)
     conn = get_db_connection()
     cihaz_tipleri = conn.execute("SELECT * FROM cihaz_tipleri").fetchall()
     durumlar = conn.execute("SELECT * FROM durumlar").fetchall()
