@@ -1,9 +1,9 @@
+from werkzeug.security import generate_password_hash
 import sqlite3
 
 conn = sqlite3.connect("cihazlar.db")
 cursor = conn.cursor()
 
-# Tabloları oluştur (varsa tekrar oluşturmaz)
 cursor.execute('CREATE TABLE IF NOT EXISTS cihaz_tipleri (id INTEGER PRIMARY KEY AUTOINCREMENT, ad TEXT NOT NULL)')
 cursor.execute('CREATE TABLE IF NOT EXISTS durumlar (id INTEGER PRIMARY KEY AUTOINCREMENT, ad TEXT NOT NULL)')
 cursor.execute('CREATE TABLE IF NOT EXISTS odalar (id INTEGER PRIMARY KEY AUTOINCREMENT, ad TEXT NOT NULL)')
@@ -27,13 +27,12 @@ CREATE TABLE IF NOT EXISTS cihazlar(
 )
 ''')
 
-# 🧹 Önce örnek verileri temizle
 cursor.execute("DELETE FROM cihaz_tipleri")
 cursor.execute("DELETE FROM durumlar")
 cursor.execute("DELETE FROM odalar")
 cursor.execute("DELETE FROM personeller")
 
-# ✅ Verileri ekle
+
 cursor.executemany("INSERT INTO cihaz_tipleri (ad) VALUES (?)", [
     ("Monitör",),
     ("Yazıcı",),
@@ -70,6 +69,21 @@ cursor.executemany("INSERT INTO personeller (ad) VALUES (?)", [
     ('Selin Yıldız',),
     ('Ali Vural',)
 ])
+
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS kullanicilar (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        rol TEXT NOT NULL
+    )
+''')
+
+hashed_password = generate_password_hash("admin123")
+cursor.execute('''
+    INSERT OR IGNORE INTO kullanicilar (username, password, rol)
+    VALUES (?, ?, ?)
+''', ("admin", hashed_password, "admin"))
 
 conn.commit()
 conn.close()

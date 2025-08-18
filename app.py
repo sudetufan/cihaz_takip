@@ -1,16 +1,27 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 import sqlite3
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import check_password_hash
+
 
 app = Flask(__name__)
 db_name = "cihazlar.db"
 
+app.secret_key = "supersecretkey"
+    
 def get_db_connection():
     conn = sqlite3.connect(db_name)
     conn.row_factory = sqlite3.Row
     return conn
 
 @app.route("/")
-def index():
+def home():
+    return redirect(url_for("login"))
+
+
+@app.route("/cihazlar")
+@login_required
+def cihaz_listesi():
     conn = get_db_connection()
     cihazlar = conn.execute('''
         SELECT c.id, ct.ad AS cihaz_tipi, c.marka, c.model, c.seri_no,
@@ -44,7 +55,7 @@ def cihaz_ekle():
         )
         conn.commit()
         conn.close()
-        return redirect(url_for('index'))
+        return redirect(url_for('cihaz_listesi'))
 
     conn = get_db_connection()
     cihaz_tipleri = conn.execute("SELECT * FROM cihaz_tipleri").fetchall()
@@ -60,6 +71,75 @@ def cihaz_ekle():
         odalar=odalar,
         personeller=personeller
     )
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class User(UserMixin):
+    def __init__(self, id, username, password, rol):
+        self.id = id
+        self.username = username
+        self.password_hash = password
+        self.rol = rol
+
+    def check_password(self,password):
+        return check_password_hash(self.password_hash, password)
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn=get_db_connection()
+    user=conn.execute("select * from kullanicilar where id = ?", (user_id)).fetchone()
+    conn.close()
+    if user:
+        return User(user["id"], user["username"], user["password"], user["rol"])
+    return None
+
+
+@app.route("/login", methods = ["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn= get_db_connection()
+        user = conn.execute("select * from kullanicilar where username = ?", (username,)).fetchone()
+        conn.close()
+        
+        if user:
+            user_obj = User(user["id"], user["username"],user["password"], user["rol"])
+            if user_obj.check_password(password):
+                login_user(user_obj)
+                flash("Başarıyla giriş yapıldı", "success")
+                return redirect(url_for("cihaz_listesi"))
+            
+        flash("Hatalı kullanıcı adı veya parola", "danger")
+    return render_template("login.html")    
+            
+        
+
+
+@app.route("/protected")
+@login_required
+def protected():
+    return f"Merhaba {current_user.name}! Bu sayfa sadece giriş yapan kullanıcılar içindir."
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    flash("Başarıyla çıkış yapıldı", "info")
+    return redirect(url_for("login"))
+
+@app.route("/cihaz_sil/<int:cihaz_id>", methods={"POST"})
+@login_required
+def cihaz_sil(cihaz_id):
+    conn = get_db_connection()
+    conn.execute("delete from cihazlar where id = ?", (cihaz_id,))
+    conn.commit()
+    conn.close()
+    flash("Cihaz başarıyla silindi", "success")
+    return redirect(url_for("cihaz_listesi"))
 
 if __name__ == "__main__":
     app.run(debug=True)

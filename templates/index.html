@@ -17,6 +17,7 @@
                 <th>Oda</th>
                 <th>Personel</th>
                 <th>Tarih</th>
+                <th>İşlem</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +32,10 @@
                 <td>{{ cihaz.oda }}</td>
                 <td>{{ cihaz.personel_adi }}</td>
                 <td>{{ cihaz.tarih }}</td>
+                <td><form method="POST" action="{{ url_for('cihaz_sil', cihaz_id=cihaz.id) }}" onsubmit="return confirm('Silmek istediğinize emin misiniz?');">
+                <button class="btn btn-sm btn-danger" type="submit">Sil</button>
+            </form>
+        </td>
             </tr>
             {% endfor %}
         </tbody>
